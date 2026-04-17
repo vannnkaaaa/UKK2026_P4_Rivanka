@@ -13,9 +13,15 @@ class Anggota extends Model
         'nama',
         'nim',
         'email',
+        'no_kartu',
+        'alamat',
+        'status_aktif',
     ];
 
-    // relasi ke user (opsional tapi bagus)
+    protected $casts = [
+        'status_aktif' => 'boolean',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

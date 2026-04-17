@@ -254,10 +254,10 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label-sm">NIM / NIP</label>
+                    <label class="form-label-sm">NIS</label>
                     <div class="input-icon">
                         <i class="icon mdi mdi-card-account-details-outline"></i>
-                        <input type="text" name="nim" class="form-control" placeholder="Nomor induk" required>
+                        <input type="text" name="nis" class="form-control" placeholder="Nomor induk" required>
                     </div>
                 </div>
 
@@ -285,6 +285,25 @@
                             <i class="icon mdi mdi-lock-check-outline"></i>
                             <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi sandi" required>
                         </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label-sm">Alamat</label>
+                    <div class="input-icon">
+                        <i class="icon mdi mdi-map-marker-outline"></i>
+                        <input type="text" name="alamat" class="form-control" placeholder="Alamat lengkap">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label-sm">Kelas</label>
+                    <div class="input-icon">
+                        <i class="icon mdi mdi-school-outline"></i>
+                        <select name="kelas_id" class="form-control" style="padding-left: 34px">
+                            <option value="">-- Pilih Kelas --</option>
+                            @foreach($kelas as $k)
+                            <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 

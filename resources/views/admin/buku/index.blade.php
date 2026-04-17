@@ -20,12 +20,18 @@
                     </button>
                 </div>
 
-                {{-- Error validasi --}}
+                @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show">
+                    {{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
+                @endif
+
                 @if($errors->any())
                 <div class="alert alert-danger alert-dismissible fade show">
                     <ul class="mb-0">
                         @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                        <li>{{ $error }}</li>
                         @endforeach
                     </ul>
                     <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
@@ -37,33 +43,54 @@
                         <thead class="thead-light">
                             <tr>
                                 <th width="50">No</th>
+                                <th width="60">Cover</th>
                                 <th>Judul</th>
                                 <th>ISBN</th>
                                 <th>Pengarang</th>
                                 <th>Penerbit</th>
                                 <th>Rak</th>
-                                <th>Kelas</th>
+                                <th>Kategori</th>
                                 <th width="80">Stok</th>
-                                <th width="130">Aksi</th>
+                                <th width="100">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($bukus as $i => $buku)
                             <tr>
                                 <td>{{ $bukus->firstItem() + $i }}</td>
+                                <td class="text-center">
+                                    @if($buku->foto)
+                                    <img src="{{ asset('storage/' . $buku->foto) }}"
+                                        alt="{{ $buku->judul }}"
+                                        style="width:45px;height:60px;object-fit:cover;border-radius:4px;cursor:pointer;"
+                                        data-toggle="modal" data-target="#modalFoto"
+                                        data-foto="{{ asset('storage/' . $buku->foto) }}"
+                                        data-judul="{{ $buku->judul }}">
+                                    @else
+                                    <div class="bg-light d-flex align-items-center justify-content-center"
+                                        style="width:45px;height:60px;border-radius:4px;margin:auto;">
+                                        <i class="mdi mdi-book text-muted"></i>
+                                    </div>
+                                    @endif
+                                </td>
                                 <td>{{ $buku->judul }}</td>
-                                <td>{{ $buku->isbn }}</td>
+                                <td>{{ $buku->isbn ?? '-' }}</td>
                                 <td>{{ $buku->pengarang->nama ?? '-' }}</td>
                                 <td>{{ $buku->penerbit->nama ?? '-' }}</td>
                                 <td>{{ $buku->rak->nama_rak ?? '-' }}</td>
-                                <td>{{ $buku->kelas->nama_kelas ?? '-' }}</td>
+                                <td>
+                                    @if($buku->kategori)
+                                    <span class="badge badge-info badge-pill">{{ $buku->kategori }}</span>
+                                    @else
+                                    <span class="text-muted">-</span>
+                                    @endif
+                                </td>
                                 <td class="text-center">
                                     <span class="badge {{ $buku->stok > 0 ? 'badge-success' : 'badge-danger' }} badge-pill">
                                         {{ $buku->stok }}
                                     </span>
                                 </td>
                                 <td>
-                                    {{-- Tombol Edit --}}
                                     <button type="button" class="btn btn-warning btn-sm waves-effect btn-edit-buku"
                                         data-toggle="modal" data-target="#modalEditBuku"
                                         data-id="{{ $buku->id }}"
@@ -73,11 +100,11 @@
                                         data-pengarang_id="{{ $buku->pengarang_id }}"
                                         data-penerbit_id="{{ $buku->penerbit_id }}"
                                         data-rak_id="{{ $buku->rak_id }}"
-                                        data-kelas_id="{{ $buku->kelas_id }}"
-                                        data-tahun="{{ $buku->tahun_terbit }}">
+                                        data-kategori="{{ $buku->kategori }}"
+                                        data-tahun="{{ $buku->tahun_terbit }}"
+                                        data-foto="{{ $buku->foto ? asset('storage/' . $buku->foto) : '' }}">
                                         <i class="mdi mdi-pencil"></i>
                                     </button>
-                                    {{-- Tombol Hapus --}}
                                     <button type="button" class="btn btn-danger btn-sm waves-effect btn-hapus-buku"
                                         data-toggle="modal" data-target="#modalHapusBuku"
                                         data-id="{{ $buku->id }}"
@@ -88,7 +115,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-4">
+                                <td colspan="10" class="text-center text-muted py-4">
                                     <i class="mdi mdi-book-off mdi-36px d-block mb-2"></i>
                                     Belum ada data buku
                                 </td>
@@ -98,7 +125,6 @@
                     </table>
                 </div>
 
-                {{-- Pagination --}}
                 <div class="d-flex justify-content-end mt-2">
                     {{ $bukus->links() }}
                 </div>
@@ -111,7 +137,22 @@
 
 @push('modal')
 
-{{-- ===== MODAL TAMBAH BUKU ===== --}}
+{{-- MODAL PREVIEW FOTO --}}
+<div class="modal fade" id="modalFoto" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fotoJudul"></h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body text-center p-2">
+                <img id="fotoPreviewBesar" src="" alt="" style="width:100%;border-radius:6px;">
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL TAMBAH BUKU --}}
 <div class="modal fade" id="modalTambahBuku" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -119,7 +160,7 @@
                 <h5 class="modal-title"><i class="mdi mdi-plus-circle mr-1"></i> Tambah Buku</h5>
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
-            <form action="{{ route('admin.buku.store') }}" method="POST">
+            <form action="{{ route('admin.buku.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
@@ -134,9 +175,8 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>ISBN</label>
-                                <input type="text" name="isbn" class="form-control @error('isbn') is-invalid @enderror"
+                                <input type="text" name="isbn" class="form-control"
                                     value="{{ old('isbn') }}" placeholder="978-xxx-xxx">
-                                @error('isbn')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
                     </div>
@@ -147,9 +187,9 @@
                                 <select name="pengarang_id" class="form-control @error('pengarang_id') is-invalid @enderror" required>
                                     <option value="">-- Pilih Pengarang --</option>
                                     @foreach($pengarangs as $p)
-                                        <option value="{{ $p->id }}" {{ old('pengarang_id') == $p->id ? 'selected' : '' }}>
-                                            {{ $p->nama }}
-                                        </option>
+                                    <option value="{{ $p->id }}" {{ old('pengarang_id') == $p->id ? 'selected' : '' }}>
+                                        {{ $p->nama }}
+                                    </option>
                                     @endforeach
                                 </select>
                                 @error('pengarang_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -161,9 +201,9 @@
                                 <select name="penerbit_id" class="form-control @error('penerbit_id') is-invalid @enderror" required>
                                     <option value="">-- Pilih Penerbit --</option>
                                     @foreach($penerbits as $p)
-                                        <option value="{{ $p->id }}" {{ old('penerbit_id') == $p->id ? 'selected' : '' }}>
-                                            {{ $p->nama }}
-                                        </option>
+                                    <option value="{{ $p->id }}" {{ old('penerbit_id') == $p->id ? 'selected' : '' }}>
+                                        {{ $p->nama }}
+                                    </option>
                                     @endforeach
                                 </select>
                                 @error('penerbit_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -177,24 +217,18 @@
                                 <select name="rak_id" class="form-control">
                                     <option value="">-- Pilih Rak --</option>
                                     @foreach($raks as $r)
-                                        <option value="{{ $r->id }}" {{ old('rak_id') == $r->id ? 'selected' : '' }}>
-                                            {{ $r->nama_rak }}
-                                        </option>
+                                    <option value="{{ $r->id }}" {{ old('rak_id') == $r->id ? 'selected' : '' }}>
+                                        {{ $r->nama_rak }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Kelas / Kategori</label>
-                                <select name="kelas_id" class="form-control">
-                                    <option value="">-- Pilih Kelas --</option>
-                                    @foreach($kelas as $k)
-                                        <option value="{{ $k->id }}" {{ old('kelas_id') == $k->id ? 'selected' : '' }}>
-                                            {{ $k->nama_kelas }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label>Kategori</label>
+                                <input type="text" name="kategori" class="form-control"
+                                    value="{{ old('kategori') }}" placeholder="Contoh: Fiksi, Sains, dll">
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -213,6 +247,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label>Cover Buku</label>
+                        <input type="file" name="foto" class="form-control-file @error('foto') is-invalid @enderror"
+                            accept="image/*" id="inputFotoTambah">
+                        @error('foto')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                        <div class="mt-2">
+                            <img id="previewFotoTambah" src="" alt="" style="display:none;width:80px;height:110px;object-fit:cover;border-radius:4px;">
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Batal</button>
@@ -225,7 +268,7 @@
     </div>
 </div>
 
-{{-- ===== MODAL EDIT BUKU ===== --}}
+{{-- MODAL EDIT BUKU --}}
 <div class="modal fade" id="modalEditBuku" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -233,7 +276,7 @@
                 <h5 class="modal-title"><i class="mdi mdi-pencil mr-1"></i> Edit Buku</h5>
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
-            <form id="formEditBuku" action="" method="POST">
+            <form id="formEditBuku" action="" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
@@ -258,7 +301,7 @@
                                 <select id="edit_pengarang_id" name="pengarang_id" class="form-control" required>
                                     <option value="">-- Pilih Pengarang --</option>
                                     @foreach($pengarangs as $p)
-                                        <option value="{{ $p->id }}">{{ $p->nama }}</option>
+                                    <option value="{{ $p->id }}">{{ $p->nama }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -269,7 +312,7 @@
                                 <select id="edit_penerbit_id" name="penerbit_id" class="form-control" required>
                                     <option value="">-- Pilih Penerbit --</option>
                                     @foreach($penerbits as $p)
-                                        <option value="{{ $p->id }}">{{ $p->nama }}</option>
+                                    <option value="{{ $p->id }}">{{ $p->nama }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -282,20 +325,16 @@
                                 <select id="edit_rak_id" name="rak_id" class="form-control">
                                     <option value="">-- Pilih Rak --</option>
                                     @foreach($raks as $r)
-                                        <option value="{{ $r->id }}">{{ $r->nama_rak }}</option>
+                                    <option value="{{ $r->id }}">{{ $r->nama_rak }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Kelas / Kategori</label>
-                                <select id="edit_kelas_id" name="kelas_id" class="form-control">
-                                    <option value="">-- Pilih Kelas --</option>
-                                    @foreach($kelas as $k)
-                                        <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
-                                    @endforeach
-                                </select>
+                                <label>Kategori</label>
+                                <input type="text" id="edit_kategori" name="kategori" class="form-control"
+                                    placeholder="Contoh: Fiksi, Sains, dll">
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -311,6 +350,16 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label>Cover Buku</label>
+                        <div class="mb-2">
+                            <img id="previewFotoEdit" src="" alt=""
+                                style="width:80px;height:110px;object-fit:cover;border-radius:4px;display:none;">
+                            <span id="noFotoEdit" class="text-muted small">Belum ada foto</span>
+                        </div>
+                        <input type="file" name="foto" class="form-control-file" accept="image/*" id="inputFotoEdit">
+                        <small class="text-muted">Kosongkan jika tidak ingin mengubah foto</small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -323,7 +372,7 @@
     </div>
 </div>
 
-{{-- ===== MODAL HAPUS BUKU ===== --}}
+{{-- MODAL HAPUS BUKU --}}
 <div class="modal fade" id="modalHapusBuku" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
@@ -355,35 +404,79 @@
 
 @push('scripts')
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
 
-    // isi modal edit
-    $('.btn-edit-buku').on('click', function() {
-        var btn = $(this);
-        var id = btn.data('id');
-        $('#edit_judul').val(btn.data('judul'));
-        $('#edit_isbn').val(btn.data('isbn'));
-        $('#edit_stok').val(btn.data('stok'));
-        $('#edit_tahun').val(btn.data('tahun'));
-        $('#edit_pengarang_id').val(btn.data('pengarang_id'));
-        $('#edit_penerbit_id').val(btn.data('penerbit_id'));
-        $('#edit_rak_id').val(btn.data('rak_id'));
-        $('#edit_kelas_id').val(btn.data('kelas_id'));
-        $('#formEditBuku').attr('action', '/admin/buku/' + id);
-    });
+        // preview foto saat tambah
+        $('#inputFotoTambah').on('change', function() {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#previewFotoTambah').attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
 
-    // isi modal hapus
-    $('.btn-hapus-buku').on('click', function() {
-        var btn = $(this);
-        $('#hapus_judul_buku').text(btn.data('judul'));
-        $('#formHapusBuku').attr('action', '/admin/buku/' + btn.data('id'));
-    });
+        // preview foto saat edit
+        $('#inputFotoEdit').on('change', function() {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#previewFotoEdit').attr('src', e.target.result).show();
+                    $('#noFotoEdit').hide();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
 
-    // buka modal tambah jika ada error validasi
-    @if($errors->any() && session('open_modal') == 'modalTambahBuku')
+        // isi modal edit
+        $('.btn-edit-buku').on('click', function() {
+            var btn = $(this);
+            var id = btn.data('id');
+            var foto = btn.data('foto');
+
+            $('#edit_judul').val(btn.data('judul'));
+            $('#edit_isbn').val(btn.data('isbn'));
+            $('#edit_stok').val(btn.data('stok'));
+            $('#edit_tahun').val(btn.data('tahun'));
+            $('#edit_pengarang_id').val(btn.data('pengarang_id'));
+            $('#edit_penerbit_id').val(btn.data('penerbit_id'));
+            $('#edit_rak_id').val(btn.data('rak_id'));
+            $('#edit_kategori').val(btn.data('kategori'));
+            $('#formEditBuku').attr('action', '/admin/buku/' + id);
+
+            // tampilkan foto existing
+            if (foto) {
+                $('#previewFotoEdit').attr('src', foto).show();
+                $('#noFotoEdit').hide();
+            } else {
+                $('#previewFotoEdit').hide();
+                $('#noFotoEdit').show();
+            }
+
+            // reset input file
+            $('#inputFotoEdit').val('');
+        });
+
+        // isi modal hapus
+        $('.btn-hapus-buku').on('click', function() {
+            var btn = $(this);
+            $('#hapus_judul_buku').text(btn.data('judul'));
+            $('#formHapusBuku').attr('action', '/admin/buku/' + btn.data('id'));
+        });
+
+        // modal preview foto besar
+        $(document).on('click', 'img[data-target="#modalFoto"]', function() {
+            $('#fotoPreviewBesar').attr('src', $(this).data('foto'));
+            $('#fotoJudul').text($(this).data('judul'));
+        });
+
+        @if($errors->any())
         $('#modalTambahBuku').modal('show');
-    @endif
+        @endif
 
-});
+    });
 </script>
 @endpush

@@ -55,7 +55,7 @@
                         <li class="menu-title">Buku</li>
 
                         <li class="{{ request()->routeIs('anggota.buku.*') ? 'active' : '' }}">
-                            <a href="" class="waves-effect">
+                            <a href="{{ route('anggota.buku.index') }}" class="waves-effect">
                                 <i class="mdi mdi-book-search"></i>
                                 <span>Katalog Buku</span>
                             </a>
@@ -64,22 +64,22 @@
                         <li class="menu-title">Peminjaman</li>
 
                         <li class="{{ request()->routeIs('anggota.peminjaman.*') ? 'active' : '' }}">
-                            <a href="" class="waves-effect">
+                            <a href="{{ route('anggota.peminjaman.index') }}" class="waves-effect">
                                 <i class="mdi mdi-book-arrow-right"></i>
                                 <span>Pinjam Buku</span>
                             </a>
                         </li>
 
                         <li class="{{ request()->routeIs('anggota.pengembalian.*') ? 'active' : '' }}">
-                            <a href="" class="waves-effect">
+                            <a href="{{ route('anggota.pengembalian.index') }}" class="waves-effect">
                                 <i class="mdi mdi-book-arrow-left"></i>
                                 <span>Kembalikan Buku</span>
                             </a>
                         </li>
 
                         <li class="{{ request()->routeIs('anggota.riwayat.*') ? 'active' : '' }}">
-                            <a href="" class="waves-effect">
-                                <i class="mdi mdi-history"></i>
+                            <a href="{{ route('anggota.riwayat.index') }}" class="waves-effect">
+                                <i class="mdi mdi-history"></i> 
                                 <span>Riwayat Peminjaman</span>
                             </a>
                         </li>

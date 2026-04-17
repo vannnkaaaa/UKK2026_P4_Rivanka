@@ -1,4 +1,4 @@
-@extends('petugas.layouts.master')
+@extends('petugas.master')
 
 @section('title', 'Dashboard')
 @section('breadcrumb', 'Dashboard')
@@ -118,7 +118,7 @@
                             <tr>
                                 <th>Anggota</th>
                                 <th>Buku</th>
-                                <th>Tgl Pinjam</th>
+                                <th>Tgl Ajukan</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -127,17 +127,19 @@
                             <tr>
                                 <td>{{ $p->user->name ?? '-' }}</td>
                                 <td>{{ $p->buku->judul ?? '-' }}</td>
-                                <td>{{ \Carbon\Carbon::parse($p->tgl_pinjam)->format('d/m/Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($p->created_at)->format('d/m/Y') }}</td>
                                 <td>
                                     <form action="{{ route('petugas.peminjaman.terima', $p->id) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-success btn-sm">
+                                        <button type="submit" class="btn btn-success btn-sm"
+                                            onclick="return confirm('Terima peminjaman ini?')">
                                             <i class="mdi mdi-check"></i> Terima
                                         </button>
                                     </form>
                                     <form action="{{ route('petugas.peminjaman.tolak', $p->id) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-danger btn-sm">
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Tolak peminjaman ini?')">
                                             <i class="mdi mdi-close"></i> Tolak
                                         </button>
                                     </form>
@@ -158,7 +160,7 @@
         </div>
     </div>
 
-    {{-- Aksi Cepat + Buku Tersedia --}}
+    {{-- Aksi Cepat + Stok Menipis --}}
     <div class="col-lg-4">
         <div class="card m-b-30">
             <div class="card-body">

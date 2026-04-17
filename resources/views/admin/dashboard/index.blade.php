@@ -118,7 +118,7 @@
                         <tbody>
                             @forelse($peminjamanterbaru ?? [] as $p)
                             <tr>
-                                <td>{{ $p->anggota->name ?? '-' }}</td>
+                                <td>{{ $p->user->name ?? '-' }}</td>
                                 <td>{{ $p->buku->judul ?? '-' }}</td>
                                 <td>{{ \Carbon\Carbon::parse($p->tgl_pinjam)->format('d/m/Y') }}</td>
                                 <td>

@@ -10,14 +10,33 @@ class Buku extends Model
 
     protected $fillable = [
         'judul',
-        'penulis',
-        'penerbit',
-        'tahun',
-        'stok'
+        'isbn',
+        'pengarang_id',
+        'penerbit_id',
+        'rak_id',
+        'kategori',
+        'stok',
+        'tahun_terbit',
+        'foto',
     ];
 
-    public function peminjaman()
+    public function pengarang()
     {
-        return $this->hasMany(Peminjaman::class, 'buku_id');
+        return $this->belongsTo(Pengarang::class);
+    }
+
+    public function penerbit()
+    {
+        return $this->belongsTo(Penerbit::class);
+    }
+
+    public function rak()
+    {
+        return $this->belongsTo(Rak::class);
+    }
+
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class);
     }
 }

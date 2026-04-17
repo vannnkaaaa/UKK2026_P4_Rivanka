@@ -3,29 +3,48 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Buku;
+use App\Models\User;
+use App\Models\Peminjaman;
+use App\Models\Denda;
+use App\Models\Penerbit;
+use App\Models\Pengarang;
+use App\Models\Rak;
 
-class AnggotaController extends Controller
+class DashboardController extends Controller
 {
     public function index()
     {
-        // sementara dummy dulu biar tampil
-        $anggota = [
-            ['id' => 1, 'nama' => 'Rivanka', 'email' => 'rivanka@gmail.com'],
-            ['id' => 2, 'nama' => 'Adam', 'email' => 'adam@gmail.com'],
-        ];
+        $totalBuku        = Buku::count();
+        $totalAnggota     = User::where('role', 'anggota')->count();
+        $totalPeminjaman  = Peminjaman::where('status', 'diterima')->count();
+        $totalDenda = Denda::where('status_lunas', 0)->count();
+        $totalRak         = Rak::count();
+        $totalPenerbit    = Penerbit::count();
+        $totalPengarang   = Pengarang::count();
+        $totalPetugas     = User::where('role', 'petugas')->count();
 
-        return view('admin.anggota.index', compact('anggota'));
-    }
+        $peminjamanterbaru = Peminjaman::with(['user', 'buku'])
+            ->latest()
+            ->take(5)
+            ->get();
 
-    public function create()
-    {
-        return view('admin.anggota.create');
-    }
+        $dendaBelumLunas = Denda::with(['pengembalian.peminjaman.anggota'])
+            ->where('status_lunas', 0)
+            ->get();
 
-    public function store(Request $request)
-    {
-        // nanti simpan ke database
-        return redirect()->route('admin.anggota.index');
+
+        return view('admin.dashboard.index', compact(
+            'totalBuku',
+            'totalAnggota',
+            'totalPeminjaman',
+            'totalDenda',
+            'totalRak',
+            'totalPenerbit',
+            'totalPengarang',
+            'totalPetugas',
+            'peminjamanterbaru',
+            'dendaBelumLunas'
+        ));
     }
 }

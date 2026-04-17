@@ -13,6 +13,7 @@
     <link href="{{ asset('assets/css/icons.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet" type="text/css">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css" rel="stylesheet">
     @stack('styles')
 </head>
 
@@ -57,35 +58,35 @@
                         <li class="menu-title">Master Data</li>
 
                         <li class="{{ request()->routeIs('admin.buku.*') ? 'active' : '' }}">
-                            <a href="" class="waves-effect">
+                            <a href="{{ route('admin.buku.index') }}" class="waves-effect">
                                 <i class="mdi mdi-book-multiple"></i>
                                 <span>Buku</span>
                             </a>
                         </li>
 
                         <li class="{{ request()->routeIs('admin.rak.*') ? 'active' : '' }}">
-                            <a href="" class="waves-effect">
+                            <a href="{{ route('admin.rak.index') }}" class="waves-effect">
                                 <i class="mdi mdi-library-shelves"></i>
                                 <span>Rak Buku</span>
                             </a>
                         </li>
 
                         <li class="{{ request()->routeIs('admin.kelas.*') ? 'active' : '' }}">
-                            <a href="" class="waves-effect">
+                            <a href="{{ route('admin.kelas.index') }}" class="waves-effect">
                                 <i class="mdi mdi-tag-multiple"></i>
-                                <span>Kelas / Kategori</span>
+                                <span>Kelas</span>
                             </a>
                         </li>
 
                         <li class="{{ request()->routeIs('admin.penerbit.*') ? 'active' : '' }}">
-                            <a href="" class="waves-effect">
+                            <a href="{{ route('admin.penerbit.index') }}" class="waves-effect">
                                 <i class="mdi mdi-domain"></i>
                                 <span>Penerbit</span>
                             </a>
                         </li>
 
                         <li class="{{ request()->routeIs('admin.pengarang.*') ? 'active' : '' }}">
-                            <a href="" class="waves-effect">
+                            <a href="{{ route('admin.pengarang.index') }}" class="waves-effect">
                                 <i class="mdi mdi-account-edit"></i>
                                 <span>Pengarang</span>
                             </a>
@@ -101,7 +102,7 @@
                         </li>
 
                         <li class="{{ request()->routeIs('admin.petugas.*') ? 'active' : '' }}">
-                            <a href="" class="waves-effect">
+                            <a href="{{ route('admin.petugas.index') }}" class="waves-effect">
                                 <i class="mdi mdi-account-hard-hat"></i>
                                 <span>Petugas</span>
                             </a>

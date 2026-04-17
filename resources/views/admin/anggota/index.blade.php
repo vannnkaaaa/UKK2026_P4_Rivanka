@@ -19,6 +19,13 @@
                     </button>
                 </div>
 
+                @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show">
+                    {{ session('success') }}
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
+                @endif
+
                 @if($errors->any())
                 <div class="alert alert-danger alert-dismissible fade show">
                     <ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
@@ -32,6 +39,8 @@
                             <tr>
                                 <th width="50">No</th>
                                 <th>Nama</th>
+                                <th>NIS</th>
+                                <th>Kelas</th>
                                 <th>No Kartu</th>
                                 <th>Email</th>
                                 <th>Alamat</th>
@@ -44,7 +53,9 @@
                             <tr>
                                 <td>{{ $anggotas->firstItem() + $i }}</td>
                                 <td>{{ $anggota->name }}</td>
-                                <td><span class="badge badge-secondary">{{ $anggota->no_kartu }}</span></td>
+                                <td>{{ $anggota->nis ?? '-' }}</td>
+                                <td>{{ $anggota->kelas->nama_kelas ?? '-' }}</td> 
+                                <td><span class="badge badge-secondary">{{ $anggota->no_kartu ?? '-' }}</span></td>
                                 <td>{{ $anggota->email }}</td>
                                 <td>{{ $anggota->alamat ?? '-' }}</td>
                                 <td>
@@ -58,8 +69,10 @@
                                         data-id="{{ $anggota->id }}"
                                         data-name="{{ $anggota->name }}"
                                         data-email="{{ $anggota->email }}"
+                                        data-nis="{{ $anggota->nis }}"
                                         data-no_kartu="{{ $anggota->no_kartu }}"
                                         data-alamat="{{ $anggota->alamat }}"
+                                        data-kelas_id="{{ $anggota->kelas_id }}"
                                         data-status="{{ $anggota->status_aktif }}">
                                         <i class="mdi mdi-pencil"></i>
                                     </button>
@@ -71,9 +84,9 @@
                                     </button>
                                 </td>
                             </tr>
-                            @empty
+                            @empty  
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
+                                <td colspan="9" class="text-center text-muted py-4">
                                     <i class="mdi mdi-account-off mdi-36px d-block mb-2"></i>
                                     Belum ada data anggota
                                 </td>
@@ -100,7 +113,7 @@
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <form action="{{ route('admin.anggota.store') }}" method="POST">
-                @csrf       
+                @csrf
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Nama Lengkap <span class="text-danger">*</span></label>
@@ -108,11 +121,23 @@
                             value="{{ old('name') }}" placeholder="Nama lengkap" required>
                         @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    <div class="form-group">
-                        <label>No Kartu Anggota <span class="text-danger">*</span></label>
-                        <input type="text" name="no_kartu" class="form-control @error('no_kartu') is-invalid @enderror"
-                            value="{{ old('no_kartu') }}" placeholder="Contoh: ANG-001" required>
-                        @error('no_kartu')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>NIS</label>
+                                <input type="text" name="nis" class="form-control @error('nis') is-invalid @enderror"
+                                    value="{{ old('nis') }}" placeholder="Contoh: 2024001">
+                                @error('nis')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>No Kartu Anggota <span class="text-danger">*</span></label>
+                                <input type="text" name="no_kartu" class="form-control @error('no_kartu') is-invalid @enderror"
+                                    value="{{ old('no_kartu') }}" placeholder="Contoh: ANG-001" required>
+                                @error('no_kartu')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Email <span class="text-danger">*</span></label>
@@ -130,6 +155,15 @@
                         <label>Alamat</label>
                         <textarea name="alamat" class="form-control" rows="2"
                             placeholder="Alamat lengkap">{{ old('alamat') }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Kelas</label>
+                        <select name="kelas_id" class="form-control">
+                            <option value="">-- Pilih Kelas --</option>
+                            @foreach($kelas as $k)
+                            <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -159,9 +193,19 @@
                         <label>Nama Lengkap <span class="text-danger">*</span></label>
                         <input type="text" id="edit_name" name="name" class="form-control" required>
                     </div>
-                    <div class="form-group">
-                        <label>No Kartu Anggota</label>
-                        <input type="text" id="edit_no_kartu" name="no_kartu" class="form-control">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>NIS</label>
+                                <input type="text" id="edit_nis" name="nis" class="form-control" placeholder="Contoh: 2024001">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>No Kartu Anggota <span class="text-danger">*</span></label>
+                                <input type="text" id="edit_no_kartu" name="no_kartu" class="form-control" required>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Email <span class="text-danger">*</span></label>
@@ -174,6 +218,15 @@
                     <div class="form-group">
                         <label>Alamat</label>
                         <textarea id="edit_alamat" name="alamat" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Kelas</label>
+                        <select id="edit_kelas_id" name="kelas_id" class="form-control">
+                            <option value="">-- Pilih Kelas --</option>
+                            @foreach($kelas as $k)
+                            <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Status</label>
@@ -229,8 +282,10 @@
             var btn = $(this);
             $('#edit_name').val(btn.data('name'));
             $('#edit_email').val(btn.data('email'));
+            $('#edit_nis').val(btn.data('nis'));
             $('#edit_no_kartu').val(btn.data('no_kartu'));
             $('#edit_alamat').val(btn.data('alamat'));
+            $('#edit_kelas_id').val(btn.data('kelas_id'));
             $('#edit_status').val(btn.data('status'));
             $('#formEditAnggota').attr('action', '/admin/anggota/' + btn.data('id'));
         });
@@ -238,6 +293,10 @@
             $('#hapus_nama_anggota').text($(this).data('name'));
             $('#formHapusAnggota').attr('action', '/admin/anggota/' + $(this).data('id'));
         });
+
+        @if($errors->any())
+        $('#modalTambahAnggota').modal('show');
+        @endif
     });
 </script>
 @endpush

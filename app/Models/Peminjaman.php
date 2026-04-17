@@ -12,8 +12,16 @@ class Peminjaman extends Model
         'user_id',
         'buku_id',
         'jumlah',
-        'tanggal_kembali',
-        'status'
+        'tgl_pinjam',           
+        'tgl_kembali_rencana',  
+        'tanggal_kembali',      
+        'status',
+    ];
+
+    protected $casts = [
+        'tgl_pinjam'          => 'date',
+        'tgl_kembali_rencana' => 'date',
+        'tanggal_kembali'     => 'date',
     ];
 
     public function buku()
@@ -24,5 +32,10 @@ class Peminjaman extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function pengembalian()
+    {
+        return $this->hasOne(Pengembalian::class, 'peminjaman_id');
     }
 }

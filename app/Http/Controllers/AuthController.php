@@ -49,35 +49,32 @@ class AuthController extends Controller
 
     public function register()
     {
-        return view('auth.register');
+        $kelas = \App\Models\Kelas::all();
+        return view('auth.register', compact('kelas'));
     }
 
     public function prosesRegister(Request $request)
     {
         $request->validate([
             'nama_depan' => 'required',
-            'nim' => 'required|unique:users',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8|confirmed',
+            'nis'        => 'required|unique:users',
+            'email'      => 'required|email|unique:users',
+            'password'   => 'required|min:8|confirmed',
         ]);
 
-        // simpan ke tabel users
-        $user = User::create([
-            'name' => $request->nama_depan . ' ' . $request->nama_belakang,
-            'nim' => $request->nim,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+        User::create([
+            'name'        => $request->nama_depan . ' ' . $request->nama_belakang,
+            'nis'         => $request->nis,
+            'email'       => $request->email,
+            'password'    => Hash::make($request->password),
+            'role'        => 'anggota',
+            'alamat'       => $request->alamat,
+            'kelas_id'     => $request->kelas_id,
+            'no_kartu'    => 'ANG-' . str_pad(User::where('role', 'anggota')->count() + 1, 3, '0', STR_PAD_LEFT),
+            'status_aktif' => 1,
         ]);
 
-        // simpan ke tabel anggota
-        Anggota::create([
-            'user_id' => $user->id,
-            'nama' => $user->name,
-            'nim' => $request->nim,
-            'email' => $request->email,
-        ]);
-
-        return redirect()->route('login')->with('success', 'Register berhasil!');
+        return redirect()->route('login')->with('success', 'Register berhasil! Silakan login.');
     }
     public function logout(Request $request)
     {

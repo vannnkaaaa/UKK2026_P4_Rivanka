@@ -22,7 +22,7 @@
                         <p class="mb-0 text-muted">Sedang Dipinjam</p>
                     </div>
                     <div class="col-3 align-self-center text-center">
-                        <a href="" class="btn btn-primary btn-sm">
+                        <a href="{{ route('anggota.peminjaman.index') }}" class="btn btn-primary btn-sm">
                             <i class="mdi mdi-arrow-right"></i>
                         </a>
                     </div>
@@ -66,7 +66,7 @@
                         <p class="mb-0 text-muted">Total Riwayat</p>
                     </div>
                     <div class="col-3 align-self-center text-center">
-                        <a href="" class="btn btn-success btn-sm">
+                        <a href="{{ route('anggota.peminjaman.index') }}?status=selesai" class="btn btn-success btn-sm">
                             <i class="mdi mdi-arrow-right"></i>
                         </a>
                     </div>
@@ -108,7 +108,7 @@
                     <h5 class="header-title mt-0 mb-0">
                         <i class="mdi mdi-book-arrow-right mr-1"></i> Peminjaman Aktif
                     </h5>
-                    <a href="" class="btn btn-primary btn-sm">
+                    <a href="{{ route('anggota.peminjaman.index') }}" class="btn btn-primary btn-sm">
                         Lihat Semua
                     </a>
                 </div>
@@ -126,10 +126,10 @@
                             @forelse($peminjamantAktif ?? [] as $p)
                             <tr>
                                 <td>{{ $p->buku->judul ?? '-' }}</td>
-                                <td>{{ \Carbon\Carbon::parse($p->tgl_pinjam)->format('d/m/Y') }}</td>
+                                <td>{{ $p->tgl_pinjam ? \Carbon\Carbon::parse($p->tgl_pinjam)->format('d/m/Y') : '-' }}</td>
                                 <td>
-                                    {{ \Carbon\Carbon::parse($p->tgl_kembali_rencana)->format('d/m/Y') }}
-                                    @if(\Carbon\Carbon::parse($p->tgl_kembali_rencana)->isPast())
+                                    {{ $p->tgl_kembali_rencana ? \Carbon\Carbon::parse($p->tgl_kembali_rencana)->format('d/m/Y') : '-' }}
+                                    @if($p->tgl_kembali_rencana && \Carbon\Carbon::parse($p->tgl_kembali_rencana)->isPast() && $p->status == 'diterima')
                                         <span class="badge badge-danger ml-1">Terlambat!</span>
                                     @endif
                                 </td>
@@ -137,7 +137,7 @@
                                     @if($p->status == 'pending')
                                         <span class="badge badge-warning">Pending</span>
                                     @elseif($p->status == 'diterima')
-                                        <span class="badge badge-success">Diterima</span>
+                                        <span class="badge badge-success">Dipinjam</span>
                                     @elseif($p->status == 'ditolak')
                                         <span class="badge badge-danger">Ditolak</span>
                                     @else
@@ -172,8 +172,8 @@
                         <strong>{{ auth()->user()->name }}</strong>
                     </li>
                     <li class="p-2 border-bottom d-flex justify-content-between">
-                        <span class="text-muted">NIM</span>
-                        <strong>{{ auth()->user()->nim ?? '-' }}</strong>
+                        <span class="text-muted">NIS</span>
+                        <strong>{{ auth()->user()->nis ?? '-' }}</strong>
                     </li>
                     <li class="p-2 border-bottom d-flex justify-content-between">
                         <span class="text-muted">Email</span>
@@ -192,17 +192,12 @@
                 <h5 class="header-title mt-0 mb-3">
                     <i class="mdi mdi-lightning-bolt mr-1"></i> Aksi Cepat
                 </h5>
-                <div class="d-grid gap-2">
-                    <a href="" class="btn btn-primary btn-block waves-effect mb-2">
-                        <i class="mdi mdi-book-search mr-1"></i> Cari Buku
-                    </a>
-                    <a href="" class="btn btn-success btn-block waves-effect mb-2">
-                        <i class="mdi mdi-book-arrow-right mr-1"></i> Pinjam Buku
-                    </a>
-                    <a href="" class="btn btn-warning btn-block waves-effect">
-                        <i class="mdi mdi-book-arrow-left mr-1"></i> Kembalikan Buku
-                    </a>
-                </div>
+                <a href="{{ route('anggota.peminjaman.index') }}" class="btn btn-primary btn-block waves-effect mb-2">
+                    <i class="mdi mdi-book-arrow-right mr-1"></i> Pinjam Buku
+                </a>
+                <a href="{{ route('anggota.pengembalian.index') }}" class="btn btn-warning btn-block waves-effect">
+                    <i class="mdi mdi-book-arrow-left mr-1"></i> Kembalikan Buku
+                </a>
             </div>
         </div>
     </div>
